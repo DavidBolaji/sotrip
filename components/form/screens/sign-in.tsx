@@ -62,11 +62,11 @@ const SigninComponent = () => {
           <div className="mb-10">
             <LoginComponentFooter
               gText="Continue With Google"
-              fText="Continue with acebook"
+              fText="Continue with Facebook"
             />
           </div>
           <div className="text-center text-md pb-10">
-            Don’t have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link href="/register" className="font-semibold text-s_blue">
               Sign Up
             </Link>

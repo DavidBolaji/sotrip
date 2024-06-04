@@ -2,8 +2,14 @@ import AuthComponent from "@/components/auth-component";
 
 import RegisterStepper from "@/components/register-stepper";
 import { IMAGES } from "@/constants";
+import { Metadata } from "next";
 import Image from "next/image";
 import React from "react";
+
+export const metadata: Metadata = {
+  title: "SoTrip - Register",
+  description: "Open an account with sotrip",
+};
 
 const RegisterPage = () => {
   return (
