@@ -6,14 +6,36 @@ import { Grid } from "antd";
 import Image from "next/image";
 import { IMAGES } from "@/constants";
 import { StepperChildProps } from "@/components/stepper/stepper";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Axios } from "@/axois/axios";
+import { AxiosResponse } from "axios";
+import toast from "react-hot-toast";
 
 const { useBreakpoint } = Grid;
 
 const StepThree: React.FC<{ SW: StepperChildProps }> = ({ SW }) => {
   const screen = useBreakpoint();
-  const onSubmit = async () => {
-    SW.next()
+  const queryClient = useQueryClient();
+
+  const {mutate: resendOTP } = useMutation({
+    mutationFn: async(email: string) => await Axios.post('/auth/request-otp', {email}),
+    onSuccess: (res: AxiosResponse) => {
+      toast.success(res.data.message)
+    }
+  })
+
+  const {mutate, isPending} = useMutation({
+    mutationFn: async (data: {email: string, otpCode: string}) => await Axios.post('/auth/verify-email', {...data}),
+    onSuccess: (_: AxiosResponse) => {
+      SW.next()
+    }
+  })
+
+  const onSubmit = async (values: {otp: string}) => {
+    const email = queryClient.getQueryData(['email']) as string
+    mutate({email, otpCode: values.otp})
   };
+
   return (
     <div className="flex flex-col justify-center items-center h-full">
       <div className="flex items-center w-full justify-center">
@@ -46,19 +68,19 @@ const StepThree: React.FC<{ SW: StepperChildProps }> = ({ SW }) => {
             >
               <Field
                 as={OtpInput}
-                name="email"
-                numInputs={4}
+                name="otp"
+                numInputs={6}
                 onChange={handleChange("otp")}
                 value={values.otp}
                 inputStyle={{
                   border: "none",
-                  width: screen.md ? 65 : 40,
-                  height: screen.md ? 65 : 40,
+                  width: screen.md ? 45 : 40,
+                  height: screen.md ? 45 : 40,
                   borderRadius: 10,
                   outline: "none",
                 }}
                 containerStyle={{
-                  gap: screen.md ? 32 : 8,
+                  gap: screen.md ? 10 : 8,
                   border: "0px",
                 }}
                 shouldAutoFocus
@@ -69,13 +91,17 @@ const StepThree: React.FC<{ SW: StepperChildProps }> = ({ SW }) => {
                 )}
               />
               <ButtonComponent
+                loading={isPending}
                 type="submit"
                 text="Verify"
                 className="text-white w-full text-lg font-bold shadow-xl flex items-center justify-center gap-3 mb-4"
               />
               <div
                 className="text-center text-md mt-6"
-                onClick={() => SW.prev()}
+                onClick={() =>{ 
+                  const email = queryClient.getQueryData(['email']) as string
+                  resendOTP(email)
+                }}
               >
                 If you didn&apos;t receive a code{" "}
                 <span className="font-semibold text-s_blue">Resend</span>

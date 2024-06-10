@@ -1,6 +1,9 @@
+import { Axios } from "@/axois/axios";
 import ButtonComponent from "@/components/button/button-component";
 import StyledInput from "@/components/form/styled-input";
 import { StepperChildProps } from "@/components/stepper/stepper";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AxiosResponse } from "axios";
 import { Field, Form, Formik } from "formik";
 import React from "react";
 import * as Yup from "yup";
@@ -13,7 +16,19 @@ const emailSchema = Yup.object().shape({
 });
 
 const StepTwo: React.FC<{ SW: StepperChildProps }> = ({ SW }) => {
-  const onSubmit = () => {};
+  const queryClient = useQueryClient()
+  const {mutate, isPending} = useMutation({
+    mutationFn: async(email: string) => await Axios.post('/auth/register', {email}),
+    onSuccess: (_: AxiosResponse, variable: string) => {
+      queryClient.setQueryData(['email'], () => {
+        return variable
+      })
+      SW.next()
+    }
+  })
+  const onSubmit = (values: {email: string}) => {
+    mutate(values.email)
+  };
 
   return (
     <div className="flex flex-col justify-center items-center h-full">
@@ -39,8 +54,10 @@ const StepTwo: React.FC<{ SW: StepperChildProps }> = ({ SW }) => {
                 placeholder={"Enter Email"}
               />
               <ButtonComponent
-                onClick={() => SW.next()}
+                loading={isPending}
+                // onClick={() =>}
                 text="Continue"
+                type="submit"
                 className="text-white w-full text-lg font-bold shadow-xl flex items-center justify-center gap-3 mb-4"
               />
               <div className="text-center text-md cursor-pointer translate-y-4">

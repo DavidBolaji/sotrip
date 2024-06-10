@@ -5,10 +5,22 @@ import Image from "next/image";
 import { IMAGES } from "@/constants";
 import { StepperChildProps } from "@/components/stepper/stepper";
 import { SelectInput } from "@/components/form/select-input";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Axios } from "@/axois/axios";
+import { AxiosResponse } from "axios";
 
 const StepFive: React.FC<{ SW: StepperChildProps }> = ({ SW }) => {
-  const onSubmit = async () => {
-    SW.next();
+  const queryClient = useQueryClient();
+  const {mutate, isPending} = useMutation({
+    mutationFn: async (data: {email: string, location: string}) => await Axios.post('/auth/add-location', {...data}),
+    onSuccess: (_: AxiosResponse) => {
+      SW.next()
+    }
+  })
+
+  const onSubmit = async (values: {country: string}) => {
+    const email = queryClient.getQueryData(['email']) as string
+    mutate({location: values.country, email})
   };
   return (
     <div className="flex flex-col justify-center items-center">
@@ -42,6 +54,7 @@ const StepFive: React.FC<{ SW: StepperChildProps }> = ({ SW }) => {
             >
               <Field name="country" as={SelectInput} placeholder="Country" />
               <ButtonComponent
+                disabled={isPending}
                 type="submit"
                 text="Proceed"
                 className="text-white w-full text-lg font-bold shadow-xl flex items-center justify-center gap-3 mb-4"

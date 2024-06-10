@@ -7,6 +7,10 @@ import { isValidPhoneNumber } from "react-phone-number-input";
 import StyledInput from "@/components/form/styled-input";
 import CustomPhoneInput from "@/components/form/custom-phone-input";
 import Link from "next/link";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AxiosResponse } from "axios";
+import { Axios } from "@/axois/axios";
+import { useRouter } from "next/navigation";
 
 const formSchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
@@ -19,8 +23,23 @@ const formSchema = Yup.object().shape({
 });
 
 const StepSix: React.FC<{ SW: StepperChildProps }> = ({ SW }) => {
-  const onSubmit = async () => {
-    SW.next();
+  const queryClient = useQueryClient()
+  const router = useRouter()
+  const {mutate, isPending} = useMutation({
+    mutationFn: async (data: {email: string; name: string; phoneNumber: string; password: string}) => await Axios.post('/auth/add-details', {...data}),
+    onSuccess: (_: AxiosResponse) => {
+      router.push('/')
+    }
+  })
+  const onSubmit = async (values: {name: string; phone: string; password: string}) => {
+    const email = queryClient.getQueryData(['email']) as string
+    mutate({
+      email,
+      phoneNumber: values.phone,
+      name: values.name,
+      password: values.password
+    })
+ 
   };
   return (
     <div className="flex flex-col justify-center items-center h-full">
@@ -67,7 +86,8 @@ const StepSix: React.FC<{ SW: StepperChildProps }> = ({ SW }) => {
               </div>
               <div className="mt-12">
                 <ButtonComponent
-                  onClick={() => SW.next()}
+                  type="submit"
+                  loading={isPending}
                   text="Sign Up"
                   className="text-white w-full text-lg font-bold shadow-xl flex items-center justify-center gap-3 mb-4"
                 />

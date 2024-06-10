@@ -11,7 +11,7 @@ const AuthComponent: React.FC<{ text: string, src: StaticImageData }> = ({ text,
         <Image
         src={src.src}
         alt={text}
-        className="object-cover"
+        className={`${text.trim().length > 0 ? 'object-cover': 'object-contain'}`}
         fill
           
         />
@@ -19,7 +19,7 @@ const AuthComponent: React.FC<{ text: string, src: StaticImageData }> = ({ text,
       <h1 className="text-white text-center text-4xl font-bold flex items-center justify-center mx-20 absolute z-30">
         {text}
       </h1>
-      <div className=" bg-gradient-to-r from-cyan-500 to-blue-500 absolute h-full w-full z-10 opacity-[0.6]"></div>
+      {text.trim().length > 0 && <div className=" bg-gradient-to-r from-cyan-500 to-blue-500 absolute h-full w-full z-10 opacity-[0.6]"></div>}
     </div>
   );
 };

@@ -2,7 +2,7 @@
 import { ErrorMessage, useFormikContext } from "formik";
 import React, { useState } from "react";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import InputComponent, { InputProps } from "./input-component";
 import { isNotNumber, isNotText } from "@/utils/helpers";
 import FormError from "./form-error-component";
@@ -15,9 +15,10 @@ const StyledInput: React.FC<InputProps> = ({ name, ...rest }) => {
     getFieldMeta,
     isValidating,
   } = useFormikContext();
+  const router = useRouter();
 
   const fieldProps = getFieldProps(name!);
-  const { error, touched } = getFieldMeta(name!);
+  const { error } = getFieldMeta(name!);
   const pathname = usePathname();
 
   if (!fieldProps) {
@@ -60,7 +61,7 @@ const StyledInput: React.FC<InputProps> = ({ name, ...rest }) => {
         {name === "password" && (
           <div
             className="text-md font-semibold text-s_blue flex justify-end -mt-1 cursor-pointer"
-            onClick={() => {}}
+            onClick={() => router.push('/forgot')}
           >
             Forgot password?
           </div>

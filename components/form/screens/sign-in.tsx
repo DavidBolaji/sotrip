@@ -8,6 +8,13 @@ import ButtonComponent from "@/components/button/button-component";
 
 import LoginComponentFooter from "@/components/login-component";
 import Link from "next/link";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Axios } from "@/axois/axios";
+import { AxiosError, AxiosResponse, isAxiosError } from "axios";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+
+interface IsignIn {email: string, password: string}
 
 const loginSchema = Yup.object().shape({
   email: Yup.string()
@@ -20,13 +27,40 @@ const loginSchema = Yup.object().shape({
 });
 
 const SigninComponent = () => {
+  const queryClient = useQueryClient()
+  const router = useRouter();
+  const {mutate: login, isPending} = useMutation({
+    mutationFn: async (data: IsignIn) => await Axios.post('/auth/login', data),
+    onSuccess: (res: AxiosResponse<{status: "success" | "error" | "online", message: string}>) => {
+      if(res.data.status === "online") {
+        toast.success("success")
+
+        queryClient.setQueryData(['user'], () => {
+          const  {message, ...rest} = res.data
+          return {
+            ...rest
+          }
+        })
+
+        router.push('/dashboard')
+      }
+    },
+    onError: (error: AxiosError) => {
+      console.log(isAxiosError(error))
+      toast.error((error.response?.data as any)?.message || (error as unknown as Error).message)
+    }
+  })
+
+  const onSubmit = async (values: IsignIn) => {
+    login(values)
+  }
   return (
     <Formik
       initialValues={{
         email: "",
         password: "",
       }}
-      onSubmit={() => {}}
+      onSubmit={onSubmit}
       validationSchema={loginSchema}
     >
       {({ handleSubmit }) => (
@@ -53,9 +87,12 @@ const SigninComponent = () => {
 
           <div className="mt-4">
             <ButtonComponent
+             loading={isPending}
+             disabled={isPending}
               className="w-full mt-6 text-lg font-bold text-white shadow-xl"
               text={`Log in`}
-              type="button"
+              type="submit"
+            
             />
           </div>
           <div className="text-center text-sm mt-8 mb-4">Or</div>

@@ -2,14 +2,16 @@ import { cn } from "@/utils/helpers";
 import React, { ButtonHTMLAttributes } from "react";
 import { BsFacebook } from "react-icons/bs";
 import { FcGoogle } from "react-icons/fc";
+import Spinner from "../spinner";
 
 interface IButton extends ButtonHTMLAttributes<HTMLButtonElement> {
   text: string | React.ReactNode;
   className?: string;
   bType?: 'GOOGLE' | 'FACEBOOK'
+  loading?: boolean
 }
 
-const ButtonComponent: React.FC<IButton> = ({ text, className, bType, ...rest }) => {
+const ButtonComponent: React.FC<IButton> = ({ text, className, bType, loading = false, ...rest }) => {
   return (
     <button
       {...rest}
@@ -17,7 +19,7 @@ const ButtonComponent: React.FC<IButton> = ({ text, className, bType, ...rest })
     >
       {bType === "FACEBOOK" && <BsFacebook color={"blue"} />}
       {bType === "GOOGLE" && <FcGoogle />}
-      {text}
+      {loading ? <Spinner /> :text  }
     </button>
   );
 };

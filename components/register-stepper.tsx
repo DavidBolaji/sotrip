@@ -32,7 +32,7 @@ const RegisterStepper = () => {
         <div className="flex flex-col min-h-[90vh] px-3 items-center justify-center">
           <StepFive SW={SW!} />
         </div>
-        <div className="flex flex-col  px-3 items-center justify-center no-scrollbar">
+        <div className="flex flex-col px-3 items-center justify-center no-scrollbar">
           <StepSix SW={SW!} />
         </div>
       </Stepper>
